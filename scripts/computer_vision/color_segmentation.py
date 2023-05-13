@@ -17,10 +17,9 @@ import pdb
 #Image
 HEIGHT = 376
 WIDTH = 672
-top = np.zeros((int((5/8.0)*HEIGHT), WIDTH), dtype="uint8")
-middle = np.ones((int((3/8.0)*HEIGHT), WIDTH), dtype="uint8")
-bottom = np.zeros(((HEIGHT-top.shape[0]-middle.shape[0]), WIDTH), dtype="uint8")
-line_follower_mask = np.vstack((top, middle, bottom))
+top = np.zeros((int((2/8.0)*HEIGHT), WIDTH), dtype="uint8")
+middle = np.ones((int((6/8.0)*HEIGHT), WIDTH), dtype="uint8")
+line_follower_mask = np.vstack((top, middle))
 
 def image_print(img):
 	"""
@@ -49,21 +48,20 @@ def cd_color_segmentation(image, template=None, is_line_follower=False):
 	blurred_image = cv2.erode(blurred_image, (3,3))
 	blurred_image = cv2.dilate(blurred_image, (3,3))
 
-	if is_line_follower:
-		blurred_image = cv2.bitwise_and(blurred_image, blurred_image, mask=line_follower_mask)
+	blurred_image = cv2.bitwise_and(blurred_image, blurred_image, mask=line_follower_mask)
 
 	# Convert image to HSV
 	image_hsv = cv2.cvtColor(blurred_image, cv2.COLOR_BGR2HSV)
 
 	# Create Color Mask
-	light_gray = (0, 0, 0)
-	dark_gray = (10, 255, 255)
+	light_gray = (0, 70, 50)
+	dark_gray = (5, 255, 255)
 	color_mask = cv2.inRange(image_hsv, light_gray, dark_gray)
 	#print(color_mask)
 
 	# Extract out Sign
 	filtered_image = cv2.bitwise_and(image, image, mask=color_mask)
-	#image_print(filtered_image)
+	image_print(filtered_image)
 
 	try:
 		# Identify Contours
@@ -77,7 +75,7 @@ def cd_color_segmentation(image, template=None, is_line_follower=False):
 
 		# Visualize Bounding Box
 		cv2.rectangle(image,bounding_box[0],bounding_box[1],(0,255,0),2)
-                #image_print(image)
+		image_print(image)
 
 		# Return bounding box
 		return bounding_box
@@ -85,5 +83,4 @@ def cd_color_segmentation(image, template=None, is_line_follower=False):
 	except:
 		return ((0,0),(0,0))
 
-#cd_color_segmentation(cv2.imread("./test_images_sign/test7.jpg"))
-#Test 9 is sketch
+cd_color_segmentation(cv2.imread("../..//image.png"))
